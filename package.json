@@ -1,0 +1,8 @@
+{
+  "name": "krasnodar-lead-sites",
+  "private": true,
+  "scripts": {
+    "start:workers": "node server.js --dir site-workers --port 8765",
+    "start:opora": "node server.js --dir site-opora --port 8766"
+  }
+}
