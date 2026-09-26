@@ -490,7 +490,7 @@
         <p style="margin-bottom: 10px; font-size: 1.1rem;">Позвоните или оставьте заявку — мы перезвоним через 5 минут</p>
         <a href="tel:+79964152206" class="big-phone">+7 (996) 415-22-06</a>
         <p>📍 География: Краснодар и Краснодарский край (выезд на объект). Без выходных.</p>
-        <form class="callback-form" id="callback-form" method="post" action="/api/lead">
+        <form class="callback-form" id="callback-form" method="post">
             <input type="tel" name="phone" placeholder="Ваш телефон" required>
             <input type="text" name="name" placeholder="Ваше имя (необязательно)">
             <button type="submit">Заказать обратный звонок</button>
@@ -509,6 +509,8 @@
 
 <script>
     const form = document.getElementById('callback-form');
+    const telegramBotToken = '8820704700:AAFSaBYg0mu77RzXnGC2DC8tKu8oZrkXmKE';
+    const telegramChatId = '-1004356738822';
     if(form) {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -518,16 +520,26 @@
             button.textContent = 'Отправляем…';
 
             try {
-                const response = await fetch(form.action, {
+                const phone = form.elements.phone.value.trim();
+                const name = form.elements.name.value.trim();
+                const message = [
+                    '📩 Новая заявка',
+                    '',
+                    'Сайт: Рабочие руки Краснодар',
+                    `Телефон: ${phone}`,
+                    `Имя: ${name || 'не указано'}`,
+                    `Время: ${new Date().toLocaleString('ru-RU')}`
+                ].join('\n');
+                const response = await fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        phone: form.elements.phone.value,
-                        name: form.elements.name.value
+                        chat_id: telegramChatId,
+                        text: message
                     })
                 });
                 const result = await response.json();
-                if (!response.ok || !result.ok) throw new Error(result.message || 'Не удалось отправить заявку');
+                if (!response.ok || !result.ok) throw new Error(result.description || 'Не удалось отправить заявку');
                 alert('Спасибо! Заявка отправлена. Мы свяжемся с вами в ближайшее время.');
                 form.reset();
             } catch (error) {
